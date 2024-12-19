@@ -1,0 +1,59 @@
+version: '3.4'
+
+services:
+  moodsy_pg:
+    container_name: moodsy_pg_container
+    image: postgres:14.1-alpine3.15
+    restart: unless-stopped
+    # Загружаем переменные окружения из файла .env_example
+    env_file:
+      - .env_example
+    ports:
+      - "5432:5432"
+    volumes:
+      # Монтируем локальную директорию для скриптов инициализации базы данных
+      - "${PWD}/data/initdb/:/docker-entrypoint-initdb.d/"
+      # Монтируем том для хранения данных базы данных
+      - "moodsy_pg_data_dev:/var/lib/postgresql/data/"
+
+  # pgadmin:  # если нужно использовать PGAdmin, раскомментируйте
+  #   container_name: moodsy_pgadmin_container  # Имя контейнера для PGAdmin
+  #   image: dpage/pgadmin4:6.4  # Используем образ для PGAdmin
+  #   restart: always  # Контейнер PGAdmin всегда будет перезапускаться, если остановится
+  #   environment:
+  #       PGADMIN_DEFAULT_EMAIL: test@example.com  # Устанавливаем email для PGAdmin
+  #       PGADMIN_DEFAULT_PASSWORD: 123123  # Устанавливаем пароль для PGAdmin
+  #       PGADMIN_LISTEN_PORT: 5433  # Порт для прослушивания PGAdmin
+  #       PGADMIN_CONFIG_SERVER_MODE: "False"  # Отключаем режим сервера PGAdmin
+  #       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"  # Отключаем требование главного пароля
+  #       PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED: "False"  # Отключаем проверку обновлений PGAdmin
+  #   ports:
+  #     - "5433:5433"  # Пробрасываем порт 5433
+  #   depends_on:
+  #       - moodsy_pg  # Зависимость от контейнера PostgreSQL
+
+  moodsy_flask:
+    container_name: moodsy_flask_container  # Имя контейнера для Flask приложения
+    image: docker.io/bkin/moodsyflask:latest  # Используем образ Flask приложения
+    restart: unless-stopped  # Контейнер будет перезапускаться, если он остановится
+    environment:
+      DATABASE_HOST: moodsy_pg  # Указываем хост для подключения к базе данных (контейнер PostgreSQL)
+      DATABASE_PORT: 5432  # Указываем порт для подключения к базе данных
+    env_file:
+      - .env_example  # Загружаем переменные окружения из файла .env_example
+    ports:
+      - 55055:5000  # Пробрасываем порт 5000 на порт 55055 для Flask приложения
+    volumes:
+      - "${PWD}/container_entrypoint/:/app/custom_entrypoint/"  # Монтируем директорию для пользовательского entrypoint
+      - flask_static_data:/app/static  # Внешний том для статики
+    depends_on:
+      - moodsy_pg
+    entrypoint:
+      - bash
+      - -c
+      - |
+        flask db upgrade && exec gunicorn --bind 0.0.0.0:5000 wsgi:app  # Выполняем миграции перед запуском приложения
+
+volumes:
+  moodsy_pg_data_dev:  # Том для хранения данных PostgreSQL
+  flask_static_data:  # Внешний том для статики

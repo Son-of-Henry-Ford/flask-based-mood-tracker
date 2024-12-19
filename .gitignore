@@ -1,0 +1,43 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+.env
+
+# Ignore logs and other generated files
+logs/
+*.log
+*.pot
+*.po
+*.mo
+*.egg-info/
+dist/
+build/
+*.pid
+
+# Ignore database files
+*.db
+*.sqlite
+
+# Ignore IDE and editor files
+.venv/
+
+.vscode/*
+.idea/
+*.sublime-project
+
+!.vscode/launch.json
+
+
+
+
+# Ignore .bak files
+*.bak
+
+# ignore kompose files
+*.yaml
+venv
+.venv
+
+#
+temp/

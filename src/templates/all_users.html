@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>User List</h1>
+
+<table class="table-secondary">
+    <thead>
+        <tr>
+            <th>User ID</th>
+       
+            <th>Username</th>
+        
+            <th>Admin</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for user in pages.items %}
+        {% if (user.id % 2) == 0 %}
+        <tr class="table-light">
+        {% else %}
+        <tr class="table-secondary">
+
+        {% endif %}
+            <td>{{user.id}}</td>
+            <td>{{ user.email }}</td>
+            <td><a href="{{url_for('users.update_user', user_id=user.id)}}" >
+            {% if user.is_admin %}
+            <span style="color: chocolate;" >Yes</span> 
+            {% else %}
+            <span style="color:darkgreen;" >No</span> 
+            {% endif %}
+            </a></td>
+        </tr>
+        {% endfor %}
+</table>
+
+
+<!-- credit https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/pagination/ -->
+<div class=page-items>
+    Page {{ pages.page }} of {{ pages.pages }}
+  </div>
+  <div class=pagination>
+    {% for p in pages.iter_pages() %}
+      {% if p %}
+        {% if p != pages.page %}
+          <a href="{{ url_for('users.all_users', page=p, per_page=pages.per_page) }}"> {{ p }} </a>
+        {% else %}
+          <strong> {{ p }} </strong>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Mood{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {{ form.csrf_token }}
+    <input hidden type="text" value="" id="mood">
+    <div class="d-grid gap-2 mt-3">
+        {{ form.note }}
+        {% for mood in moods %} 
+        <input class="btn btn-{{mood.color}}" type="submit" value="{{ mood.description }}" id="{{ mood.id }}" name="{{ mood.description}}">
+        {% endfor %}
+
+
+
+    </div>
+</form>
+
+{% endblock %}

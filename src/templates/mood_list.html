@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>moods list</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mood in moods %}
+        <tr class="table-{{mood.color}}">
+            <td class="table-{{mood.color}}">{{ mood.description }}</td>
+        </tr>
+        {% endfor %}
+</table>
+
+{% endblock %}
